@@ -9,3 +9,4 @@ venv/
 *.sqlite3
 docker-compose.override.yml
 docker-compose.dev.yml
+wait-for-db.sh
