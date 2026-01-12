@@ -431,3 +431,111 @@ This FastAPI backend is:
 📦 Industry-standard
 
 It combines authentication, voice processing, AI intelligence, database design, and clean architecture into a complete production-ready system.
+
+19. Docker Setup
+
+Docker ensures your backend runs consistently across environments and simplifies deployment.
+
+19.1 Dockerfile
+
+Create a Dockerfile in the backend root:
+
+# Base image
+FROM python:3.11-slim
+
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    libportaudio2 \
+    netcat-openbsd \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# Copy project files
+COPY . .
+
+# Expose FastAPI default port
+EXPOSE 8000
+
+# Start server
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+19.2 .dockerignore
+
+Create a .dockerignore to reduce image size:
+
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+*.sqlite3
+
+19.3 Docker Build & Run
+# Build Docker image
+docker build -t fastapi-notepad-backend .
+
+# Run container
+docker run -d -p 8000:8000 fastapi-notepad-backend
+
+
+Access API at: http://localhost:8000/docs
+
+20. PostgreSQL Setup on Railway
+
+Railway provides cloud-hosted PostgreSQL.
+
+20.1 Create PostgreSQL Project
+
+Go to Railway
+
+Create a new project → Add PostgreSQL plugin
+
+Note your DATABASE_URL
+
+20.2 Update .env
+
+Add the connection string:
+
+DATABASE_URL=postgresql+asyncpg://<username>:<password>@<host>:<port>/<database>
+
+
+Replace <username>, <password>, <host>, <port>, <database> with Railway details.
+
+20.3 Update database.py
+
+Use async SQLAlchemy connection with DATABASE_URL from .env:
+
+import os
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+engine = create_async_engine(DATABASE_URL, echo=True)
+AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+21.1 Environment Variables on Railway
+
+Go to Railway Project → Settings → Environment Variables
+
+Add:
+
+DATABASE_URL (PostgreSQL)
+
+SECRET_KEY (JWT)
+
+GEMINI_API_KEY (AI model)
+
+21.3 Accessing the API
+
+Railway provides a public URL like: https://fastapi-notepad.up.railway.app/docs
