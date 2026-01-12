@@ -22,11 +22,8 @@ RUN pip install -r requirements.txt
 # ----------------- Copy entire project -----------------
 COPY . .
 
-# ----------------- Make wait-for-db.sh executable -----------------
-RUN chmod +x wait-for-db.sh
-
 # ----------------- Expose port -----------------
 EXPOSE 8080
 
-# ----------------- Run FastAPI app with wait-for-db -----------------
-CMD ["./wait-for-db.sh", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# ----------------- Run FastAPI app directly -----------------
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
